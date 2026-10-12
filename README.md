@@ -1,11 +1,22 @@
-# Loop Ride App
+# LoopRideApp
 
-A responsive ride-hailing demo built as a single Java HTTP server with embedded Rider and Driver web UI.
+**A lightweight Java ride-hailing prototype with separate rider and driver web interfaces.**
 
-## Requirements
+LoopRideApp serves an embedded web experience from a small Java HTTP server, making it a compact starting point for exploring server-side routing and ride-hailing UI workflows.
 
-- JDK 17 or newer
-- Docker (optional, for container deployment)
+## Highlights
+
+- Rider and driver interfaces served by a Java HTTP server
+- Uses Java's built-in `HttpServer` without third-party Java dependencies
+- Tries ports 8080–8084 by default
+- Optional Docker packaging
+- QA test documentation and a GitHub Actions CI workflow
+
+## Technology
+
+- JDK 17+
+- Java built-in HTTP server
+- Docker (optional)
 
 ## Project structure
 
@@ -18,94 +29,33 @@ QA_EXECUTION.md
 .github/workflows/ci.yml
 ```
 
-The Java source declares `project.LoopRideApp`. There are no Maven or Gradle dependencies; the server uses Java's built-in `HttpServer`.
-
 ## Run locally
 
-Compile and run from the repository root:
-
 ```bash
+git clone https://github.com/saikishore2410/LoopRideApp.git
+cd LoopRideApp
 javac -d . LoopRideApp.java
 java project.LoopRideApp
 ```
 
-By default, the server tries ports 8080 through 8084. To request a specific port:
+Open the address printed in the terminal. To request a specific port:
 
 ```bash
 java project.LoopRideApp 9000
 ```
 
-Open the address printed by the application, for example `http://localhost:8080`.
-
-## Deploy with Docker
-
-The Dockerfile uses Eclipse Temurin JDK 17, compiles the Java source and starts the server. It respects the host-provided `PORT` environment variable and binds to `0.0.0.0`.
-
-```bash
-docker build -t loop-ride-app .
-docker run --rm -p 10000:10000 -e PORT=10000 loop-ride-app
-```
-
-If you change the host port mapping, set the container `PORT` consistently with the right-hand/container port.
-
-## API endpoints
-
-All supported application routes currently accept **GET** requests.
-
-| Method | Path | Success response |
-|---|---|---|
-| GET | `/` | Rider/Driver HTML application |
-| GET | `/index.html` | Rider/Driver HTML application |
-| GET | `/api/health` | JSON health status |
-| GET | `/api/rider` | JSON rider status |
-| GET | `/api/driver` | JSON driver status |
-| GET | Any unknown path | HTTP 404 JSON error |
-| Other methods | Any path | HTTP 405 JSON error and `Allow: GET` |
-
-Example:
-
-```bash
-curl -i http://localhost:8080/api/health
-curl -i http://localhost:8080/api/unknown
-curl -i -X POST http://localhost:8080/api/health
-```
-
-## Rider UI
-
-The rider experience includes destination search, remembered demo trip history, saved pickup shortcuts (Home, Work and JNTU), selectable ride categories (Mini, Comfort and XL), live-updating illustrative fare estimates, pickup/destination summary, optional driver notes, and trip preferences.
-
-## Driver UI
-
-The demo dashboard includes an online/offline toggle, example earnings/ride/empty-kilometre counters and busy-zone cards for Gachibowli, HITEC City and Banjara Hills. Driver status is loaded from `/api/driver`.
-
-## UI features
-
-- Responsive layouts for desktop, tablet and mobile screens, including touch-friendly controls and reduced-motion support.
-- Rider destination search with a helpful empty state, saved pickup shortcuts and selectable destinations.
-- Ride categories (Mini, Comfort and XL) that update the illustrative fare before the demo request is reviewed.
-- Fare breakdown, distance and pickup summary, optional driver note, quiet-ride/luggage/accessibility preferences, and a trip-sharing safety reminder.
-- Up to five recent demo trip selections stored in the current browser with a reuse action and clear-history control.
-- Demo ride review explicitly states that no real driver is contacted and no booking is created.
-- Driver availability toggle, sample dashboard metrics and busy-zone cards.
-- Keyboard focus states, accessible labels, pressed states and live status announcements.
-
-Fare and distance values are illustrative. The app does not have a live booking service, geocoding, route calculation or payment integration.
-
-## Current limitations
-
-This is a demonstration application, not a production ride-hailing service.
-
-- UI selections and status toggles are in-browser demo interactions; they are not persisted by the server.
-- No authentication, user accounts, database, real ride matching, payments or persistent rider/driver data.
-- Displayed distances, counters and busy-zone bonuses are sample values.
-- The API currently offers health and role status endpoints only; booking, quote, driver action and trip-management APIs are not implemented.
-
 ## Testing
 
-GitHub Actions compiles the source on JDK 17, checks HTTP status codes and response bodies, runs Playwright browser tests for rider/driver workflows and mobile layout, and builds/runs a Docker container for endpoint smoke checks.
+Review `QA_TEST_CASES.md` and `QA_EXECUTION.md`, then inspect the CI workflow for automated checks.
 
-See [QA test cases](QA_TEST_CASES.md) and [QA execution documentation](QA_EXECUTION.md) for the test inventory and validation notes.
+## Prototype limitations
+
+Treat this as a demo until production capabilities are implemented and independently verified. Authentication, durable ride/order storage, real-time location tracking, dispatch, payments, privacy controls, and operational monitoring require dedicated design and testing.
+
+## Contributing
+
+Bug reports should include steps to reproduce and expected versus actual behaviour. Pull requests should explain changes and validation.
 
 ## License
 
-No license has been added yet.
+No license is specified. Add a `LICENSE` file before allowing reuse.
