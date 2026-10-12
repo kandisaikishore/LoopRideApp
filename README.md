@@ -4,18 +4,18 @@
 
 > LoopRideApp serves an embedded web experience from a small Java HTTP server, making it a compact starting point for exploring server-side routing and ride-hailing UI workflows.
 
+## Live Demo
+
+**Deployment URL:** Not verified yet. A live link will be added after confirming a working public deployment. The repository link is not a substitute for a deployed app.
+
 ## At a glance
 
-- **Purpose:** Understand the problem and supported workflows from the feature and scope sections below.
-- **Setup:** Follow the project-specific steps in **Getting started** or **Run locally**; verify commands against the current source and package scripts.
-- **Configuration:** Keep API keys, database passwords, tokens, and user data out of commits. Use local environment variables for secrets.
-- **Quality:** Run the available build, tests, and lint checks before proposing changes.
-
-
+- **Purpose:** A compact ride-hailing UI prototype for rider and driver workflows.
+- **Setup:** Use the steps below to build and run the Java server locally.
+- **Configuration:** Keep credentials and other secrets out of version control.
+- **Quality:** Review the QA documents and run CI before releasing changes.
 
 **A lightweight Java ride-hailing prototype with separate rider and driver web interfaces.**
-
-LoopRideApp serves an embedded web experience from a small Java HTTP server, making it a compact starting point for exploring server-side routing and ride-hailing UI workflows.
 
 ## Highlights
 
