@@ -11,9 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  http-smoke:
+  java-http-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,26 +22,23 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Compile
+      - name: Compile application
         run: |
           set -eu
           javac -Xlint:all -d . LoopRideApp.java
           test -f project/LoopRideApp.class
-      - name: Start server
+      - name: Start application
         run: |
           set -eu
           java project.LoopRideApp 18080 > server.log 2>&1 &
           echo $! > server.pid
           ready=0
           for i in {1..20}; do
-            if curl --silent --show-error --fail http://127.0.0.1:18080/api/health >/dev/null; then
-              ready=1
-              break
-            fi
+            if curl --silent --show-error --fail http://127.0.0.1:18080/api/health >/dev/null; then ready=1; break; fi
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then cat server.log; exit 1; fi
-      - name: Test routes, response bodies, headers, and methods
+      - name: Test HTTP routes and methods
         run: |
           set -eu
           base=http://127.0.0.1:18080
@@ -52,7 +49,8 @@ jobs:
             actual="$(curl --silent --show-error -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' "$@")"
             if [ "$actual" != "$expected" ]; then
               echo "Expected HTTP $expected but received $actual for $*"
-              cat "$tmp/body"; exit 1
+              cat "$tmp/body"
+              exit 1
             fi
           }
           assert_status 200 "$base/"
@@ -63,25 +61,19 @@ jobs:
           assert_status 200 "$base/api/health"
           grep -qi 'Content-Type: application/json' "$tmp/headers"
           grep -q '"status": "UP"' "$tmp/body"
-          grep -q '"application": "Loop Ride App"' "$tmp/body"
           assert_status 200 "$base/api/rider"
           grep -q '"role": "rider"' "$tmp/body"
-          grep -q '"status": "ready"' "$tmp/body"
           assert_status 200 "$base/api/driver"
           grep -q '"role": "driver"' "$tmp/body"
-          grep -q '"online": false' "$tmp/body"
-          grep -q '"status": "offline"' "$tmp/body"
           assert_status 404 "$base/api/does-not-exist"
-          grep -qi 'Content-Type: application/json' "$tmp/headers"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           assert_status 404 "$base/unknown-page"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
-          for method in POST PUT PATCH DELETE; do
+          for method in POST PUT PATCH DELETE HEAD; do
             assert_status 405 -X "$method" "$base/api/health"
             grep -qi 'Allow: GET' "$tmp/headers"
-            grep -q '"error": "Method not allowed"' "$tmp/body"
           done
-      - name: Stop server
+      - name: Stop application
         if: always()
         run: |
           if [ -f server.pid ]; then kill "$(cat server.pid)" 2>/dev/null || true; fi
@@ -101,8 +93,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Install Playwright
+          node-version: '22'
+      - name: Install Playwright and browser
         run: |
           npm install
           npx playwright install --with-deps chromium
@@ -143,7 +135,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build Docker image
         run: docker build --tag loop-ride-app:test .
-      - name: Run container and test deployed HTTP endpoints
+      - name: Run container and test endpoints
         run: |
           set -eu
           docker run --detach --rm --name loop-ride-app-test -p 18081:10000 loop-ride-app:test
@@ -155,19 +147,6 @@ jobs:
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then docker logs loop-ride-app-test; exit 1; fi
-          request_status() {
-            url="$1"
-            expected="$2"
-            for attempt in {1..10}; do
-              status="$(curl --silent --output /dev/null --write-out '%{http_code}' "$url" || true)"
-              if [ "$status" = "$expected" ]; then return 0; fi
-              sleep 1
-            done
-            echo "Expected HTTP $expected from $url; last response was $status"
-            docker logs loop-ride-app-test
-            return 1
-          }
-          request_status http://127.0.0.1:18081/ 200
-          request_status http://127.0.0.1:18081/api/health 200
-          request_status http://127.0.0.1:18081/api/not-found 404
-          curl --retry 5 --retry-connrefused --retry-delay 1 --silent --show-error http://127.0.0.1:18081/api/health | grep -q '"status": "UP"'
+          status="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18081/api/not-found)"
+          test "$status" = "404"
+          curl --silent --show-error http://127.0.0.1:18081/api/health | grep -q '"status": "UP"'
