@@ -40,7 +40,7 @@ jobs:
             pip install pytest
             pytest -q
           else
-            echo "No Python tests found; Python test suite not configured for this repository."
+            echo "No Python tests configured; skipping Python test execution."
           fi
       - name: Node tests and build
         shell: bash
