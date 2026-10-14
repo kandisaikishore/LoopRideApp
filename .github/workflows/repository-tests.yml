@@ -36,8 +36,12 @@ jobs:
         run: |
           set -e
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -d tests ] || find . -maxdepth 2 -name 'test_*.py' -print -quit | grep -q .; then pip install pytest; pytest -q
-          else echo "No Python tests found."; fi
+          if [ -d tests ] || find . -maxdepth 3 -name 'test_*.py' -print -quit | grep -q .; then
+            pip install pytest
+            pytest -q
+          else
+            echo "No Python tests found; Python test suite not configured for this repository."
+          fi
       - name: Node tests and build
         shell: bash
         run: |
