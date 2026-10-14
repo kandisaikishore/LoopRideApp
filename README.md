@@ -1,74 +1,45 @@
 # LoopRideApp
 
-[![Repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/saikishore2410/LoopRideApp) [![Issues](https://img.shields.io/github/issues/saikishore2410/LoopRideApp)](https://github.com/saikishore2410/LoopRideApp/issues) [![Last Commit](https://img.shields.io/github/last-commit/saikishore2410/LoopRideApp)](https://github.com/saikishore2410/LoopRideApp/commits/main)
+[![Source](https://img.shields.io/badge/Source-GitHub-181717?logo=github)](https://github.com/kandisaikishore/LoopRideApp) [![Last Commit](https://img.shields.io/github/last-commit/kandisaikishore/LoopRideApp)](https://github.com/kandisaikishore/LoopRideApp/commits/main)
 
-> LoopRideApp serves an embedded web experience from a small Java HTTP server, making it a compact starting point for exploring server-side routing and ride-hailing UI workflows.
+LoopRideApp is a ride-coordination application project focused on organizing trip-related workflows. Check the current implementation for the supported trip creation, discovery, matching, and user-account features.
 
-## Live Demo
+## Product goals
 
-**Deployment URL:** Not verified yet. A live link will be added after confirming a working public deployment. The repository link is not a substitute for a deployed app.
+- Make ride-related information easier to explore
+- Provide a foundation for coordinating trips and participants
+- Handle route, date, and passenger data consistently
+- Keep privacy and user safety central to the experience
 
-## At a glance
-
-- **Purpose:** A compact ride-hailing UI prototype for rider and driver workflows.
-- **Setup:** Use the steps below to build and run the Java server locally.
-- **Configuration:** Keep credentials and other secrets out of version control.
-- **Quality:** Review the QA documents and run CI before releasing changes.
-
-**A lightweight Java ride-hailing prototype with separate rider and driver web interfaces.**
-
-## Highlights
-
-- Rider and driver interfaces served by a Java HTTP server
-- Uses Java's built-in `HttpServer` without third-party Java dependencies
-- Tries ports 8080–8084 by default
-- Optional Docker packaging
-- QA test documentation and a GitHub Actions CI workflow
-
-## Technology
-
-- JDK 17+
-- Java built-in HTTP server
-- Docker (optional)
-
-## Project structure
-
-```text
-LoopRideApp.java
-Dockerfile
-README.md
-QA_TEST_CASES.md
-QA_EXECUTION.md
-.github/workflows/ci.yml
-```
-
-## Run locally
+## Getting started
 
 ```bash
-git clone https://github.com/saikishore2410/LoopRideApp.git
+git clone https://github.com/kandisaikishore/LoopRideApp.git
 cd LoopRideApp
-javac -d . LoopRideApp.java
-java project.LoopRideApp
 ```
 
-Open the address printed in the terminal. To request a specific port:
+Install dependencies and follow the runtime instructions in the project manifests. Configure API keys and backend credentials through local environment variables, not committed files.
 
-```bash
-java project.LoopRideApp 9000
-```
+## Validation checklist
 
-## Testing
+- Validate trip dates, locations, and required fields
+- Test empty search results and failed requests
+- Apply authentication and authorization to user-specific data
+- Avoid exposing exact location or contact details unnecessarily
+- Test responsive layout and accessible controls
+- Clearly label mock data and unverified ride availability
 
-Review `QA_TEST_CASES.md` and `QA_EXECUTION.md`, then inspect the CI workflow for automated checks.
+## Future improvements
 
-## Prototype limitations
-
-Treat this as a demo until production capabilities are implemented and independently verified. Authentication, durable ride/order storage, real-time location tracking, dispatch, payments, privacy controls, and operational monitoring require dedicated design and testing.
+- Document trip lifecycle and matching logic
+- Add automated tests for validation and state transitions
+- Provide secure deployment and configuration instructions
+- Add error handling and basic observability
 
 ## Contributing
 
-Bug reports should include steps to reproduce and expected versus actual behaviour. Pull requests should explain changes and validation.
+Open issues with reproducible steps and submit focused pull requests with validation notes.
 
 ## License
 
-No license is specified. Add a `LICENSE` file before allowing reuse.
+No license file is currently declared. Add a `LICENSE` file to define reuse terms.
