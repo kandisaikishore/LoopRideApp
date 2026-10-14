@@ -41,6 +41,7 @@ jobs:
             pytest -q
           else
             echo "No Python tests configured; skipping Python test execution."
+            exit 0
           fi
       - name: Node tests and build
         shell: bash
