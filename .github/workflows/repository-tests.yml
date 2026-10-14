@@ -35,13 +35,12 @@ jobs:
         shell: bash
         run: |
           set -e
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.txt ] || [ -d tests ] || find . -maxdepth 3 -name 'test_*.py' -print -quit | grep -q .; then
             if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
             pip install pytest
             pytest -q
           else
-            echo "No Python test suite configured; Python checks skipped."
+            echo "No Python tests configured; skipping Python checks."
           fi
       - name: Node tests and build
         shell: bash
