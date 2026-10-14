@@ -1,39 +1,64 @@
-# RoutePulse AI — bus route discovery and tracking prototype
+# RoutePulse AI — Bus Management & Transit Discovery
 
-Responsive Hyderabad bus route discovery with exact designated pickup/drop landmarks, stop order, scheduled departures, ETA estimates, transparent sample fares, saved trip notes, service alerts, preferences and a multilingual transit assistant.
+A responsive Hyderabad-focused transit demo combining passenger route discovery with an operator workspace for fleet records, drivers, maintenance work orders, simulated dispatch controls and service alerts.
 
-## Data integrity
-**All schedules, fares, occupancy estimates, reliability history, notices and vehicle positions are illustrative demo data.** This is not an official TSRTC/TGSRTC feed and no real vehicle GPS, map tile provider or crowd sensors are connected. The map is schematic, and bus markers are simulated from the timetable. Verify all real-world details with the operator.
+> **Demo-data notice:** Schedules, fares, occupancy, reliability, notices and vehicle positions are illustrative. This is not an official TSRTC/TGSRTC feed. GPS positions are not connected to a real vehicle source, and the operator console is not production authorization. Do not use this demo for safety-critical decisions.
 
 ## Features
-- Search demo departures by origin, destination, date and passenger count.
-- Accessibility filter based on listed stops and sample low-floor services.
-- Stop directory with landmark/address, step-free and shelter flags, and last-mile notes.
-- Schematic route map with pickup/drop markers and Google Maps deep links.
-- Explainable ETA confidence ranges, fare breakdowns and clearly labelled sample occupancy/reliability.
-- Save trips and favorite stops in local browser storage.
-- Demo service alerts and an operator test console for simulated delays and stop availability.
-- English/Hindi/Telugu assistant with an offline FAQ fallback when no LLM credential is configured.
-- Responsive desktop sidebar/mobile nav and accessible form labels.
 
-## Architecture
-React 19 + TypeScript + TanStack Start/Router + Tailwind CSS. The transit model in `src/lib/transit/data.ts` is shaped for future GTFS adaptation; `logic.ts` handles search, route segments, fares, ETA windows and simulated positions. `src/lib/transit/store.ts` stores preferences/favorites/saved demo trips in local storage. `src/lib/assistant.ts` validates and sanitizes questions; `src/routes/api/chat.ts` proxies a server-side AI gateway if configured.
+### Passenger experience
+- Search sample departures by origin, destination, date and passenger count.
+- Review stop order, pickup/drop landmarks, fare breakdown and explainable ETA ranges.
+- Inspect accessibility notes, alerts and route details.
+- English/Hindi/Telugu assistant with a safe FAQ fallback when no AI credential is configured.
+- Responsive layouts and browser-local saved preferences.
 
-## Local development
-```sh
+### Operator demo console
+- Fleet registry: add buses, capacities and update availability status.
+- Driver directory: add sample staff and set availability.
+- Maintenance: create work orders and track status; opening a work order marks the bus as in maintenance.
+- Simulated dispatch: adjust route delays and stop availability.
+- Service alerts: publish local demo notices.
+- Summary cards for fleet and maintenance status.
+
+Operator data in the added management panels is in-memory demo state and resets on refresh. It is not a persistent fleet-management backend.
+
+## Technology
+- React 19 + TypeScript
+- TanStack Start / Router
+- Tailwind CSS and reusable UI components
+- Vitest + Testing Library
+- Transit domain logic designed for future GTFS integration
+
+## Run locally
+Install Bun, then:
+
+```bash
 bun install
 bun run dev
 bun run test
 bun run lint
 bun run build
 ```
-Or with Node/npm: `npm install`, `npm run dev`, `npm run test`, `npm run lint`, `npm run build`, `npm run start`.
+
+## Documentation
+- [Product requirements](docs/PRD.md)
+- [Functional and non-functional requirements](docs/REQUIREMENTS.md)
+- [Architecture and integration boundaries](docs/ARCHITECTURE.md)
+- [Test plan](docs/TEST-PLAN.md)
+- [Research and official transit references](docs/RESEARCH.md)
+- [Deployment checklist](docs/DEPLOYMENT.md)
+- [User stories](docs/USER-STORIES.md)
+
+## Research references
+- [GTFS overview](https://gtfs.org/documentation/overview/)
+- [GTFS Schedule reference](https://gtfs.org/documentation/schedule/reference/)
+- [GTFS Realtime](https://gtfs.org/documentation/realtime/)
+- [GTFS Schedule best practices](https://github.com/MobilityData/GTFS_Schedule_Best-Practices/blob/master/en/best-practices.md)
+- [MoHUA city bus operations guidelines](https://mohua.gov.in/upload/uploadfiles/files/GuidelineCityBus.pdf)
+
+## Production roadmap
+Before real operations, integrate an authorized schedule feed and AVL/GPS or GTFS-Realtime source; add a licensed mapping provider, persistent database and migrations, server-side authentication/authorization, transaction-safe seat inventory and assignments, payment integration if required, audit logging, backups, monitoring and operator acceptance testing. Follow applicable local transport rules with the operator's compliance team; this repository does not certify regulatory compliance.
 
 ## Secrets
-`LOVABLE_API_KEY` is an optional **server-side** key for Lovable's AI gateway. Keep credentials out of source control and never use client-exposed `VITE_*` variables for LLM secrets. No real bus, route, or map provider is configured.
-
-## Testing / production roadmap
-Tests cover route selection, input validation, fares, stop sequence, demo positions, assistant sanitization/fallback, and SSE parsing. CI runs tests, lint and build on this branch. Before live operation, connect an authorized GTFS timetable and GTFS-Realtime/AVL GPS source, implement authenticated rider/operator access and persistent database/RLS, add licensed map/routing services, ground LLM answers in verified feed data, and test with operators/accessibility users.
-
-## Disclaimer
-Not affiliated with TSRTC/TGSRTC unless an operator agreement and feed are explicitly added. Demo times, routes, fares, occupancy, reliability and positions are illustrative. Never use the demo for safety-critical decisions.
+Keep credentials in deployment environment variables. Never commit API keys, payment credentials, database passwords or passenger data. AI credentials must remain server-side; never expose secrets through client-side `VITE_*` variables.
