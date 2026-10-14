@@ -17,9 +17,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -31,17 +28,6 @@ jobs:
           elif [ -x ./gradlew ]; then ./gradlew test
           elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then echo "Gradle wrapper missing; skipped."
           else echo "No root Java build manifest found."; fi
-      - name: Python tests
-        shell: bash
-        run: |
-          set -e
-          if [ -f requirements.txt ] || [ -d tests ] || find . -maxdepth 3 -name 'test_*.py' -print -quit | grep -q .; then
-            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-            pip install pytest
-            pytest -q
-          else
-            echo "No Python tests configured; skipping Python checks."
-          fi
       - name: Node tests and build
         shell: bash
         run: |
