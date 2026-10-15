@@ -69,13 +69,11 @@ jobs:
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           assert_status 404 "$base/unknown-page"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
-          # Unknown route variants must never fall through to the HTML home page.
-          assert_status 404 "$base/api/health/extra"
-          grep -q '"error": "Endpoint not found"' "$tmp/body"
+          # Additional unknown paths, including query strings, must stay 404.
+          for path in /api/health/extra /api/unknown /favicon.ico; do
+            assert_status 404 "$base$path"
+          done
           assert_status 404 "$base/api/unknown?source=smoke"
-          grep -q '"error": "Endpoint not found"' "$tmp/body"
-          assert_status 404 "$base/favicon.ico"
-          grep -q '"error": "Endpoint not found"' "$tmp/body"
       - name: Stop application
         if: always()
         run: |
