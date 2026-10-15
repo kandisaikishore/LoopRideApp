@@ -62,9 +62,9 @@ jobs:
           if ! grep -qi 'Content-Type: application/json' "$tmp/headers"; then echo "health missing JSON content type"; cat "$tmp/headers"; exit 1; fi
           if ! grep -q '"status":"UP"' "$tmp/body"; then echo "health status marker missing"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/rider"
-          if ! grep -q '"role": "rider"' "$tmp/body"; then echo "rider payload mismatch"; cat "$tmp/body"; exit 1; fi
+          if ! grep -q '"role":"rider"' "$tmp/body"; then echo "rider payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/driver"
-          if ! grep -q '"role": "driver"' "$tmp/body"; then echo "driver payload mismatch"; cat "$tmp/body"; exit 1; fi
+          if ! grep -q '"role":"driver"' "$tmp/body"; then echo "driver payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 404 "$base/api/does-not-exist"
           if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown API JSON mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 404 "$base/unknown-page"
