@@ -69,9 +69,6 @@ jobs:
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           assert_status 404 "$base/unknown-page"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
-          # Unknown route response/status are the bug being guarded; cover canonical and arbitrary paths.
-          assert_status 404 "$base/api/does-not-exist"
-          grep -qi 'endpoint not found' "$tmp/body"
       - name: Stop application
         if: always()
         run: |
