@@ -79,7 +79,7 @@ jobs:
           for method in POST PUT PATCH DELETE; do
             assert_status 405 -X "$method" "$base/api/health"
             grep -qi 'Allow: GET' "$tmp/headers"
-            grep -q 'Method not allowed' "$tmp/body"
+            grep -qi 'method not allowed' "$tmp/body"
           done
       - name: Stop application
         if: always()
