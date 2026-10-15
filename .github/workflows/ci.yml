@@ -170,4 +170,6 @@ jobs:
           if [ "$ready" -ne 1 ]; then docker logs loop-ride-app-test; exit 1; fi
           status="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18081/api/not-found)"
           test "$status" = "404"
-          curl --silent --show-error http://127.0.0.1:18081/api/health | grep -q '"status": "UP"'
+          health="$(curl --silent --show-error http://127.0.0.1:18081/api/health)"
+          echo "$health"
+          echo "$health" | grep -q '"status":"UP"'
