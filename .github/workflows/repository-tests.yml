@@ -31,9 +31,9 @@ jobs:
           elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
             echo "Gradle build file exists but Gradle wrapper is missing; install Gradle explicitly or add the wrapper." >&2
             exit 1
-          elif find . -type d \\( -name .git -o -name node_modules -o -name target \\) -prune -o -type f -name '*.java' -print -quit | grep -q .; then
+          elif find . -type d \( -name .git -o -name node_modules -o -name target \) -prune -o -type f -name '*.java' -print -quit | grep -q .; then
             mkdir -p /tmp/java-classes
-            mapfile -d '' java_files < <(find . -type d \\( -name .git -o -name node_modules -o -name target \\) -prune -o -type f -name '*.java' -print0)
+            mapfile -d '' java_files < <(find . -type d \( -name .git -o -name node_modules -o -name target \) -prune -o -type f -name '*.java' -print0)
             javac -Xlint:all -d /tmp/java-classes "${java_files[@]}"
             echo "Plain Java source compilation passed."
           else
@@ -44,12 +44,12 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if find . -type d \\( -name .git -o -name node_modules -o -name .venv -o -name __pycache__ \\) -prune -o -type f \\( -name 'test_*.py' -o -name '*_test.py' \\) -print -quit | grep -q .; then
+          if find . -type d \( -name .git -o -name node_modules -o -name .venv -o -name __pycache__ \) -prune -o -type f \( -name 'test_*.py' -o -name '*_test.py' \) -print -quit | grep -q .; then
             pip install pytest
             pytest -q
           else
             echo "No Python test files found; skipping pytest instead of failing with exit code 5."
-            if find . -type d \\( -name .git -o -name node_modules -o -name .venv -o -name __pycache__ \\) -prune -o -type f -name '*.py' -print -quit | grep -q .; then
+            if find . -type d \( -name .git -o -name node_modules -o -name .venv -o -name __pycache__ \) -prune -o -type f -name '*.py' -print -quit | grep -q .; then
               python -m compileall -q .
               echo "Python syntax compilation passed."
             fi
