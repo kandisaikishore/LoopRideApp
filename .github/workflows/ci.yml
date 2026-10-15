@@ -60,7 +60,7 @@ jobs:
           if ! grep -q 'Driver dashboard' "$tmp/body"; then echo "index.html dashboard marker missing"; head -c 300 "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/health"
           if ! grep -qi 'Content-Type: application/json' "$tmp/headers"; then echo "health missing JSON content type"; cat "$tmp/headers"; exit 1; fi
-          if ! grep -q '"status": "UP"' "$tmp/body"; then echo "health status marker missing"; cat "$tmp/body"; exit 1; fi
+          if ! grep -q '"status":"UP"' "$tmp/body"; then echo "health status marker missing"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/rider"
           if ! grep -q '"role": "rider"' "$tmp/body"; then echo "rider payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/driver"
