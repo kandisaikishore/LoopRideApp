@@ -146,8 +146,11 @@ jobs:
       - name: Run container and test endpoints
         run: |
           set -eu
-          docker run --detach --rm --name loop-ride-app-test -p 18081:10000 loop-ride-app:test
-          cleanup() { docker stop loop-ride-app-test >/dev/null 2>&1 || true; }
+          docker run --detach --rm --init --name loop-ride-app-test -p 18081:10000 loop-ride-app:test
+          cleanup() {
+            docker logs loop-ride-app-test || true
+            docker stop --time 5 loop-ride-app-test >/dev/null 2>&1 || true
+          }
           trap cleanup EXIT
           ready=0
           for i in {1..30}; do
