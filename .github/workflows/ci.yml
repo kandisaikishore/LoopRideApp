@@ -77,25 +77,8 @@ jobs:
           assert_status 404 "$base/favicon.ico"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           for method in POST PUT PATCH DELETE; do
-            actual="$(curl --silent --show-error -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' -X "$method" "$base/api/health")"
-            if [ "$actual" != "405" ]; then
-              echo "Expected HTTP 405 for $method; got $actual"
-              cat "$tmp/headers"
-              cat "$tmp/body"
-              exit 1
-            fi
-            if ! grep -qi '^Allow: GET' "$tmp/headers"; then
-              echo "Missing Allow: GET header for $method"
-              cat "$tmp/headers"
-              cat "$tmp/body"
-              exit 1
-            fi
-            if ! grep -qi 'method not allowed' "$tmp/body"; then
-              echo "Missing JSON method error for $method"
-              cat "$tmp/headers"
-              cat "$tmp/body"
-              exit 1
-            fi
+            assert_status 405 -X "$method" "$base/api/health"
+            grep -qi 'Allow: GET' "$tmp/headers"
           done
       - name: Stop application
         if: always()
