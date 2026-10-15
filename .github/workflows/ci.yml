@@ -81,8 +81,8 @@ jobs:
             grep -qi 'Allow: GET' "$tmp/headers"
             grep -q '"error": *"Method not allowed"' "$tmp/body"
           done
-          # HEAD must return the same status as GET semantics but no body.
-          assert_status 405 -I "$base/api/health"
+          # Verify HEAD status and Allow header; HTTP clients suppress its body.
+          assert_status 405 -X HEAD "$base/api/health"
           grep -qi 'Allow: GET' "$tmp/headers"
       - name: Stop application
         if: always()
