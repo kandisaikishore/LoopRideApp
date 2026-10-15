@@ -54,51 +54,58 @@ public class LoopRideApp {
     private static void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
-        if (!"GET".equalsIgnoreCase(method)) {
-            byte[] bytes = """
-                {
-                    "error": "Method not allowed"
-                }
-                """.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-            exchange.getResponseHeaders().set("Allow", "GET");
-            exchange.getResponseHeaders().set("Cache-Control", "no-store");
-            exchange.sendResponseHeaders(405, bytes.length);
-            try (OutputStream output = exchange.getResponseBody()) { output.write(bytes); }
-            return;
-        }
 
-        String response;
-        int statusCode = 200;
-        if (path.equals("/") || path.equals("/index.html")) {
-            response = HTML;
-            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-        } else if (path.equals("/api/health")) {
-            response = """
-                {"status": "UP", "application": "Loop Ride App", "message": "Server is running"}
-                """;
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-        } else if (path.equals("/api/rider")) {
-            response = """
-                {"role": "rider", "status": "ready"}
-                """;
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-        } else if (path.equals("/api/driver")) {
-            response = """
-                {"role": "driver", "online": false, "status": "offline"}
-                """;
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-        } else {
-            response = """
-                {"error": "Endpoint not found"}
-                """;
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-            statusCode = 404;
+        try {
+            // This demo is deliberately read-only. Report allowed methods on every request.
+            if (!"GET".equalsIgnoreCase(method)) {
+                sendJson(exchange, 405, "{\"error\":\"Method not allowed\"}", "GET");
+                return;
+            }
+
+            String response;
+            String contentType;
+            int statusCode = 200;
+            if (path.equals("/") || path.equals("/index.html")) {
+                response = HTML;
+                contentType = "text/html; charset=UTF-8";
+            } else if (path.equals("/api/health")) {
+                response = "{\"status\":\"UP\",\"application\":\"Loop Ride App\",\"message\":\"Server is running\"}";
+                contentType = "application/json; charset=UTF-8";
+            } else if (path.equals("/api/rider")) {
+                response = "{\"role\":\"rider\",\"status\":\"ready\"}";
+                contentType = "application/json; charset=UTF-8";
+            } else if (path.equals("/api/driver")) {
+                response = "{\"role\":\"driver\",\"online\":false,\"status\":\"offline\"}";
+                contentType = "application/json; charset=UTF-8";
+            } else {
+                sendJson(exchange, 404, "{\"error\":\"Endpoint not found\"}", null);
+                return;
+            }
+
+            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", contentType);
+            exchange.getResponseHeaders().set("Cache-Control", "no-store");
+            exchange.sendResponseHeaders(statusCode, bytes.length);
+            try (OutputStream output = exchange.getResponseBody()) {
+                output.write(bytes);
+            }
+        } finally {
+            exchange.close();
         }
+    }
+
+    private static void sendJson(HttpExchange exchange, int statusCode, String body, String allow)
+            throws IOException {
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.getResponseHeaders().set("Cache-Control", "no-store");
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        if (allow != null) {
+            exchange.getResponseHeaders().set("Allow", allow);
+        }
         exchange.sendResponseHeaders(statusCode, bytes.length);
-        try (OutputStream output = exchange.getResponseBody()) { output.write(bytes); }
+        try (OutputStream output = exchange.getResponseBody()) {
+            output.write(bytes);
+        }
     }
 
     private static final String HTML = """
