@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY LoopRideApp.java .
 
-RUN javac -d . LoopRideApp.java
+RUN javac -Xlint:all -d . LoopRideApp.java
 
 ENV PORT=10000
-
 EXPOSE 10000
 
-CMD ["sh", "-c", "java project.LoopRideApp \"$PORT\""]
+# Run Java directly so container stop signals reach the JVM (no shell wrapper).
+CMD ["java", "project.LoopRideApp", "10000"]
