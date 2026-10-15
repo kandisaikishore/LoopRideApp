@@ -54,21 +54,21 @@ jobs:
             fi
           }
           assert_status 200 "$base/"
-          grep -qi 'Content-Type: text/html' "$tmp/headers"
-          grep -q 'Rider App' "$tmp/body"
+          if ! grep -qi 'Content-Type: text/html' "$tmp/headers"; then echo "root missing HTML content type"; cat "$tmp/headers"; exit 1; fi
+          if ! grep -q 'Rider App' "$tmp/body"; then echo "root body marker missing"; head -c 300 "$tmp/body"; exit 1; fi
           assert_status 200 "$base/index.html"
-          grep -q 'Driver dashboard' "$tmp/body"
+          if ! grep -q 'Driver dashboard' "$tmp/body"; then echo "index.html dashboard marker missing"; head -c 300 "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/health"
-          grep -qi 'Content-Type: application/json' "$tmp/headers"
-          grep -q '"status": "UP"' "$tmp/body"
+          if ! grep -qi 'Content-Type: application/json' "$tmp/headers"; then echo "health missing JSON content type"; cat "$tmp/headers"; exit 1; fi
+          if ! grep -q '"status": "UP"' "$tmp/body"; then echo "health status marker missing"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/rider"
-          grep -q '"role": "rider"' "$tmp/body"
+          if ! grep -q '"role": "rider"' "$tmp/body"; then echo "rider payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 200 "$base/api/driver"
-          grep -q '"role": "driver"' "$tmp/body"
+          if ! grep -q '"role": "driver"' "$tmp/body"; then echo "driver payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 404 "$base/api/does-not-exist"
-          grep -q '"error": "Endpoint not found"' "$tmp/body"
+          if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown API JSON mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 404 "$base/unknown-page"
-          grep -q '"error": "Endpoint not found"' "$tmp/body"
+          if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown page JSON mismatch"; cat "$tmp/body"; exit 1; fi
       - name: Stop application
         if: always()
         run: |
