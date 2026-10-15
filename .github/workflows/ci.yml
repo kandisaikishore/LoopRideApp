@@ -77,11 +77,19 @@ jobs:
           assert_status 404 "$base/favicon.ico"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           for method in POST PUT PATCH DELETE; do
-            actual="$(curl --silent --show-error --max-time 5 -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' -X "$method" "$base/api/health" || true)"
-            case "$actual" in
-              405) ;;
-              *) echo "Expected HTTP 405 for $method; got '$actual'"; cat "$tmp/headers"; cat "$tmp/body"; exit 1 ;;
-            esac
+            actual="$(curl --silent --show-error --max-time 5 -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' -X "$method" "$base/api/health" 2>"$tmp/curl-error" || true)"
+            if [ "$actual" != "405" ]; then
+              echo "Expected HTTP 405 for $method; got '$actual'"
+              echo "--- curl error ---"
+              cat "$tmp/curl-error" || true
+              echo "--- response headers ---"
+              cat "$tmp/headers" || true
+              echo "--- response body ---"
+              cat "$tmp/body" || true
+              echo "--- application log ---"
+              cat server.log || true
+              exit 1
+            fi
           done
       - name: Stop application
         if: always()
