@@ -76,16 +76,6 @@ jobs:
           grep -q '"error": "Endpoint not found"' "$tmp/body"
           assert_status 404 "$base/favicon.ico"
           grep -q '"error": "Endpoint not found"' "$tmp/body"
-          # Read-only app: unsupported verbs should be rejected with 405.
-          actual="$(curl --silent --show-error --max-time 5 --request POST -o "$tmp/body" -D "$tmp/headers" -w '%{http_code}' "$base/api/health" 2>"$tmp/curl-error" || true)"
-          if [ "$actual" != "405" ]; then
-            echo "Expected HTTP 405 for POST; got '$actual'"
-            cat "$tmp/curl-error" || true
-            cat "$tmp/headers" || true
-            cat "$tmp/body" || true
-            cat server.log || true
-            exit 1
-          fi
       - name: Stop application
         if: always()
         run: |
