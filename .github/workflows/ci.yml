@@ -81,8 +81,11 @@ jobs:
             grep -qi 'Allow: GET' "$tmp/headers"
             grep -q '"error": *"Method not allowed"' "$tmp/body"
           done
-          # Verify HEAD status and Allow header; HTTP clients suppress its body.
-          assert_status 405 -X HEAD "$base/api/health"
+          # HEAD is not advertised; this read-only server accepts GET only.
+          # Verify the status code and Allow header without relying on curl's HEAD handling.
+          head_status="$(curl --silent --output /dev/null --write-out '%{http_code}' -X HEAD "$base/api/health")"
+          test "$head_status" = "405"
+          curl --silent --output /dev/null --dump-header "$tmp/headers" -X HEAD "$base/api/health"
           grep -qi 'Allow: GET' "$tmp/headers"
       - name: Stop application
         if: always()
