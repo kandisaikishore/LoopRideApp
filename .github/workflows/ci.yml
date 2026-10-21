@@ -67,8 +67,32 @@ jobs:
           if ! grep -q '"role":"driver"' "$tmp/body"; then echo "driver payload mismatch"; cat "$tmp/body"; exit 1; fi
           assert_status 404 "$base/api/does-not-exist"
           if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown API JSON mismatch"; cat "$tmp/body"; exit 1; fi
+          if ! grep -qi 'Content-Type: application/json' "$tmp/headers"; then echo "unknown API response missing JSON content type"; cat "$tmp/headers"; exit 1; fi
           assert_status 404 "$base/unknown-page"
           if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown page JSON mismatch"; cat "$tmp/body"; exit 1; fi
+          assert_status 404 "$base/api/health/extra"
+          if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "nested unknown API route must return 404"; cat "$tmp/body"; exit 1; fi
+          assert_status 404 "$base/api/unknown?source=smoke"
+          if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown route with query string must return 404"; cat "$tmp/body"; exit 1; fi
+          assert_status 404 "$base/favicon.ico"
+          if ! grep -qi 'endpoint not found' "$tmp/body"; then echo "unknown asset route must return 404"; cat "$tmp/body"; exit 1; fi
+          for method in POST PUT PATCH DELETE HEAD; do
+            status_args=(-X "$method")
+            if [ "$method" = "POST" ] || [ "$method" = "PUT" ] || [ "$method" = "PATCH" ]; then
+              status_args+=(--data '')
+            fi
+            assert_status 405 "${status_args[@]}" "$base/api/health"
+            if ! grep -qi '^Allow: GET' "$tmp/headers"; then
+              echo "$method /api/health missing Allow: GET header"
+              cat "$tmp/headers"
+              exit 1
+            fi
+            if [ "$method" != "HEAD" ] && ! grep -Fq '{"error":"Method not allowed"}' "$tmp/body"; then
+              echo "$method /api/health returned unexpected JSON error body"
+              cat "$tmp/body"
+              exit 1
+            fi
+          done
       - name: Stop application
         if: always()
         run: |
