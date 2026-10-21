@@ -10,13 +10,13 @@ The issue that originally reported HTTP 200 for unknown paths and a README/sourc
 
 ## Automated coverage added/maintained
 
-The CI workflow now checks:
+The `.github/workflows/ci.yml` workflow checks:
 
 - Compilation with JDK 17 and output class generation.
-- `GET /` and `GET /index.html` return 200 and expected HTML markers.
-- `GET /api/health`, `/api/rider` and `/api/driver` return 200 with expected JSON fields.
-- Unknown API and non-API routes return 404 with a JSON error.
-- `POST`, `PUT`, `PATCH`, `DELETE` and `HEAD` requests return 405; the first four also assert JSON error body and `Allow: GET`.
+- `GET /` and `GET /index.html` return 200, HTML content type, and expected UI markers.
+- `GET /api/health`, `/api/rider`, and `/api/driver` return 200 with expected JSON content and fields.
+- Unknown API paths, non-API paths, nested unknown API paths, unknown paths with query strings, and `/favicon.ico` return HTTP 404 with a JSON error body.
+- `POST`, `PUT`, `PATCH`, `DELETE`, and `HEAD` requests to an existing API route return HTTP 405 and include `Allow: GET`. Non-HEAD requests also assert the exact JSON error payload.
 - Server startup is polled and fails clearly if the health endpoint never becomes ready.
 
 ## Execution status
