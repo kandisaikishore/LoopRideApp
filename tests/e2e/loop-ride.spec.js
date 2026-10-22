@@ -129,3 +129,73 @@ test('reset clears ride preferences and restores Mini ride selection', async ({ 
   await expect(page.getByRole('button', { name: /Mini/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByLabel('Quiet ride')).not.toBeChecked();
 });
+
+
+test('malformed and oversized recent-trip storage is ignored safely', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('loopRideRecentTripsV1', JSON.stringify([
+      null,
+      [],
+      { destination: 'Unknown City', pickup: '<img src=x onerror=alert(1)>', distance: 2, fare: 5, rideType: 'Loop Mini' },
+      { destination: 'Charminar', pickup: 'Valid pickup', distance: -1, fare: 5, rideType: 'Loop Mini' },
+      { destination: 'Gachibowli', pickup: 'Valid pickup', distance: 8.2, fare: 99, rideType: 'Loop Mini' }
+    ]));
+  });
+  await page.goto('/');
+  await expect(page.locator('#recentTrips')).toContainText('Gachibowli');
+  await expect(page.locator('#recentTrips')).not.toContainText('Unknown City');
+  await expect(page.locator('#recentTrips')).not.toContainText('<img');
+  await expect(page.locator('#recentTrips')).not.toContainText('Charminar');
+});
+
+test('destination selection enables request; clearing restores disabled state', async ({ page }) => {
+  await page.goto('/');
+  const request = page.getByRole('button', { name: 'Review demo ride' });
+  await expect(request).toBeDisabled();
+  await page.getByRole('button', { name: /Banjara Hills/ }).click();
+  await expect(request).toBeEnabled();
+  await expect(page.locator('#summaryFare')).toHaveText('₹95');
+  await page.getByRole('button', { name: 'Clear trip' }).click();
+  await expect(request).toBeDisabled();
+  await expect(page.locator('#tripSummary')).toBeHidden();
+});
+
+test('fare stays a non-negative integer across all destinations and ride tiers', async ({ page }) => {
+  await page.goto('/');
+  const destinations = [
+    { name: /Gachibowli/, fare: '₹99' },
+    { name: /Banjara Hills/, fare: '₹95' },
+    { name: /Secunderabad/, fare: '₹169' },
+    { name: /Charminar/, fare: '₹139' }
+  ];
+  const rideTypes = [
+    { name: /Mini/, fareMultiplier: 1 },
+    { name: /Comfort/, fareMultiplier: 1.35 },
+    { name: /XL/, fareMultiplier: 1.7 }
+  ];
+  const bases = [99, 95, 169, 139];
+  for (let i = 0; i < destinations.length; i++) {
+    await page.getByRole('button', { name: destinations[i].name }).click();
+    for (let j = 0; j < rideTypes.length; j++) {
+      await page.getByRole('button', { name: rideTypes[j].name }).click();
+      const amount = await page.locator('#summaryFare').innerText();
+      expect(amount).toBe('₹' + Math.round(bases[i] * rideTypes[j].fareMultiplier));
+    }
+  }
+});
+
+test('local storage being unavailable does not crash the rider UI', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() { throw new Error('storage blocked'); }
+    });
+  });
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: /Charminar/ }).click();
+  await page.getByRole('button', { name: 'Review demo ride' }).click();
+  await expect(page.getByRole('status')).toContainText('No real driver has been contacted');
+  await expect.poll(() => pageErrors).toEqual([]);
+});
