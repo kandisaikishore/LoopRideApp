@@ -221,9 +221,9 @@ input[type=checkbox]{width:48px;height:27px;accent-color:var(--brand);cursor:poi
           <div class="summary-row"><span>Ride type</span><strong id="summaryRideType">Loop Mini</strong></div>
           <div class="summary-row"><span>Estimated fare</span><strong id="summaryFare">—</strong></div>
           <div class="fare-breakdown">
-            <div class="summary-row"><span>Base fare</span><strong id="fareBase">—</strong></div>
-            <div class="summary-row"><span>Estimated distance charge</span><strong id="fareDistance">—</strong></div>
-            <div class="summary-row"><span>Ride type adjustment</span><strong id="fareRideAdjustment">Included</strong></div>
+            <div class="summary-row"><span>Standard sample fare</span><strong id="fareBase">—</strong></div>
+            <div class="summary-row"><span>Ride type multiplier</span><strong id="fareRideAdjustment">Included</strong></div>
+            <p class="ride-meta">Fare shown uses the destination's sample fare multiplied by the selected ride type; line items are illustrative, not live pricing.</p>
           </div>
           <p class="ride-meta">Illustrative fare only; actual route, traffic, taxes and driver availability are not connected.</p>
           <div class="field" style="margin-bottom:0"><label for="rideNote">Note for your driver (optional)</label><input id="rideNote" maxlength="120" placeholder="e.g. Please call on arrival"></div>
@@ -307,9 +307,10 @@ function updateTripSummary() {
   document.getElementById('summaryDistance').textContent = state.distance.toFixed(1) + ' km';
   document.getElementById('summaryRideType').textContent = state.rideType;
   document.getElementById('summaryFare').textContent = '₹' + finalFare;
-  document.getElementById('fareBase').textContent = '₹' + Math.min(base, 50);
-  document.getElementById('fareDistance').textContent = '₹' + Math.max(0, base - 50);
-  document.getElementById('fareRideAdjustment').textContent = state.multiplier === 1 ? '₹0' : '+' + Math.round(base * (state.multiplier - 1)) + ' (approx.)';
+  document.getElementById('fareBase').textContent = '₹' + base;
+  document.getElementById('fareRideAdjustment').textContent = state.multiplier === 1
+    ? '1×'
+    : state.multiplier + '× · final ₹' + finalFare;
 }
 function readRecentTrips() {
   try {
