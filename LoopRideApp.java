@@ -314,7 +314,28 @@ function updateTripSummary() {
 function readRecentTrips() {
   try {
     const parsed = JSON.parse(localStorage.getItem(recentTripsKey) || '[]');
-    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(trip => trip && typeof trip === 'object' && !Array.isArray(trip))
+      .filter(trip =>
+        typeof trip.destination === 'string' &&
+        Object.prototype.hasOwnProperty.call(fares, trip.destination) &&
+        (trip.pickup == null || typeof trip.pickup === 'string') &&
+        (trip.rideType == null || ['Loop Mini', 'Loop Comfort', 'Loop XL'].includes(trip.rideType)) &&
+        Number.isFinite(Number(trip.distance)) &&
+        Number(trip.distance) >= 0 &&
+        Number.isFinite(Number(trip.fare)) &&
+        Number(trip.fare) >= 0
+      )
+      .slice(0, 5)
+      .map(trip => ({
+        pickup: typeof trip.pickup === 'string' ? trip.pickup.slice(0, 80) : '',
+        destination: trip.destination,
+        rideType: ['Loop Mini', 'Loop Comfort', 'Loop XL'].includes(trip.rideType) ? trip.rideType : 'Loop Mini',
+        distance: Number(trip.distance),
+        fare: Number(trip.fare),
+        createdAt: typeof trip.createdAt === 'string' ? trip.createdAt : ''
+      }));
   } catch { return []; }
 }
 function writeRecentTrip(trip) {
