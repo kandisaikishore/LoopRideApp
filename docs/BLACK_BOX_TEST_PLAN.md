@@ -28,5 +28,13 @@ Observable HTTP contract and browser-visible rider/driver workflows for the demo
 - Driver availability changes update local demo status; API failure gives visible feedback.
 - Narrow viewports and keyboard focus states remain usable.
 
+## Current automated verification snapshot
+
+The following results were observed from GitHub Actions on 2026-10-22:
+- Java HTTP route/method smoke job: passed on commit 684283f4f5dbd0861cac683b18034383635d60fb.
+- Docker image build and container endpoint smoke job: passed on commit 684283f4f5dbd0861cac683b18034383635d60fb.
+- Playwright browser end-to-end job: passed on commit 684283f4f5dbd0861cac683b18034383635d60fb.
+- Repository-wide Java and Python test phases: passed on that commit; Node tests/build were still running at snapshot time.
+
 ## Execution note
-This matrix defines black-box cases for CI and manual QA. Passing status must be based on an actual completed workflow or runtime test, not inferred from source review alone.
+The snapshot above reports completed job steps only. Check the linked GitHub Actions run for final whole-workflow completion and later commits before treating the entire pipeline as green. This matrix also includes manually reviewable edge cases beyond the current smoke checks; their presence in this document does not imply that every case is automated.
