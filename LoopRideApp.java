@@ -19,7 +19,12 @@ public class LoopRideApp {
             try {
                 requestedPort = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid port: " + args[0]);
+                throw new IllegalArgumentException(
+                    "Port must be an integer between 0 and 65535: " + args[0], e);
+            }
+            if (requestedPort < 0 || requestedPort > 65535) {
+                throw new IllegalArgumentException(
+                    "Port must be between 0 and 65535: " + requestedPort);
             }
         }
         int port = startServer(requestedPort);
