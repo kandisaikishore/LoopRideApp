@@ -1,26 +1,25 @@
 # White-Box QA Review — LoopRideApp
 
-## Scope and method
+## Scope
 
-Reviewed the Java HTTP handler, startup/port argument validation, inline browser JavaScript, local-storage access, fare calculations, and GitHub Actions workflow. The fixes below were committed directly to `main`. This review used source inspection through GitHub; no local shell was available to run the compiler or browser tests directly in this session.
+Reviewed the Java server startup/port parsing, HTTP routes, inline client-side state management, persisted recent-trip records, fare calculation display, and existing CI automation.
 
-## Findings fixed
+## Fixes committed to main
 
-1. **Invalid server port was silently ignored.** Previously, a non-numeric port was logged and then the server fell back to scanning ports 8080–8084. Startup now rejects non-numeric ports with an informative exception and rejects values outside 0–65535.
-2. **Recent-trip persistence accepted malformed record shapes.** Previously any JSON array was returned, including objects with unexpected destinations, ride types, and numeric fields. Stored records are now filtered against known destinations, accepted ride types, and finite non-negative distances/fares before reuse/rendering.
-3. **Fare breakdown was internally inconsistent.** The displayed base/distance components did not clearly add up to the destination base fare and multiplier adjustment. The UI now shows the standard sample fare and selected ride multiplier/final estimate, with explicit copy that pricing is illustrative.
+- Reject invalid/non-numeric port arguments and values outside 0–65535 instead of silently falling back to automatic port selection.
+- Validate persisted recent-trip entries against known destinations, supported ride types, and finite non-negative numeric fields before rendering or reuse.
+- Simplify the displayed fare breakdown to show the standard sample fare plus selected ride multiplier/final estimate, avoiding misleading line items.
 
-## Existing protections observed
+## Existing protections confirmed by source review
 
-- Unknown GET routes return HTTP 404 JSON.
-- Unsupported methods return HTTP 405 and set `Allow: GET`.
-- Dynamic recent-trip labels use `textContent`, rather than interpolating user data into HTML.
-- Browser-storage failures are caught.
-- GitHub Actions includes Java compilation, HTTP route/method smoke checks, browser E2E, and Docker smoke jobs.
+- Unknown GET routes return 404 JSON.
+- Unsupported methods return 405 with `Allow: GET`.
+- Recent-trip dynamic labels use DOM `textContent`, avoiding HTML interpolation of persisted text.
+- Local-storage read/write failures are handled.
 
-## Verification
+## Retest status
 
-- Existing scheduled CI tracker run: [Daily CI and Test Tracker](https://github.com/kandisaikishore/LoopRideApp/actions/runs/39682308708), completed successfully on 2026-10-21 before the changes in this review.
-- Each source/doc update committed to `main`; the latest reviewed source is linked below.
-- A fresh post-change CI result has not yet been observed in this review. Do not treat the prior success as validation of the new changes.
-- No claim is made that Java compilation, browser E2E, Docker execution, load testing, or a live deployment was run locally here.
+- [LoopRideApp CI — run 39711483989](https://github.com/kandisaikishore/LoopRideApp/actions/runs/39711483989): completed successfully for commit `684283f4f5dbd0861cac683b18034383635d60fb`. All three jobs passed: Java HTTP smoke, browser E2E, and Docker smoke.
+- Additional repository quality and daily tracker workflows were triggered by follow-up QA documentation/automation commits; their latest status may be inspected in the Actions tab.
+- These results validate the tested commit above. The final later documentation commits do not change application source.
+- Load/concurrency testing and live deployment validation were not performed as part of this run.
