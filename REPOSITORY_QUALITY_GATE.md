@@ -14,6 +14,11 @@ This repository-level checklist defines baseline smoke and compatibility testing
 ## Evidence standard
 A green workflow means only the steps in that workflow passed. It does not prove production deployment, external service availability, manual user acceptance, or features not exercised by automated tests. Record skipped checks and reasons instead of reporting them as passed.
 
+## Production readiness (not yet satisfied)
+- Do not describe this demo as a production ride-booking service until authentication/authorization, durable booking and driver state, dispatch, security/privacy review, and integration/deployment checks are implemented and verified.
+- Browser local storage and client-side availability controls are untrusted demo state; production booking and driver state must be server-authoritative.
+- Track the required implementation in [issue #6](https://github.com/kandisaikishore/LoopRideApp/issues/6).
+
 ## Maintenance
 - Prefer maintained, versioned GitHub Actions; review action release notes before major upgrades.
 - Use least-privilege workflow permissions and concurrency cancellation for superseded branches.
