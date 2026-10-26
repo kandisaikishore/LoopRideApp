@@ -85,7 +85,9 @@ The container's application port is `10000`; visit http://localhost:8080. The CI
 
 This repository currently provides a demonstrator, not a complete marketplace. It has no real authentication, account-backed data, driver matching, live maps/GPS, booking lifecycle, dispatch, payment integration, or production database. Fare values and busy-zone bonuses are examples, not live quotes. Browser local storage is local to one browser and must not be treated as secure account storage.
 
-Before production use, add a defined backend/API contract, authentication and authorization, server-side validation, durable data storage, privacy and security review, observability, and integration tests for the booking lifecycle.
+### Production-readiness gate
+
+Do not deploy or market this repository as a production ride-booking service. Before production use, implement and verify the requirements tracked in [issue #6](https://github.com/kandisaikishore/LoopRideApp/issues/6): a defined backend/API contract and booking lifecycle, server-side authentication and rider/driver authorization, durable data storage, concurrency-safe dispatch/state transitions, privacy and security review, observability, integration tests, and deployment verification. Browser local storage and client-side toggles are demo state only; they must not be treated as authoritative trip or driver records.
 
 ## Contributing
 
