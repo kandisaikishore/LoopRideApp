@@ -1,8 +1,21 @@
 # LoopRideApp
 
-[![LoopRideApp CI](https://github.com/kandisaikishore/LoopRideApp/actions/workflows/ci.yml/badge.svg)](https://github.com/kandisaikishore/LoopRideApp/actions/workflows/ci.yml) [![Last Commit](https://img.shields.io/github/last-commit/kandisaikishore/LoopRideApp)](https://github.com/kandisaikishore/LoopRideApp/commits/main)
+[![LoopRideApp CI](https://github.com/kandisaikishore/LoopRideApp/actions/workflows/ci.yml/badge.svg)](https://github.com/kandisaikishore/LoopRideApp/actions/workflows/ci.yml) [![Last Commit](https://img.shields.io/github/last-commit/kandisaikishore/LoopRideApp)](https://github.com/kandisaikishore/LoopRideApp/commits)
 
-LoopRideApp is a responsive **ride-coordination UI demo** backed by a small Java HTTP server. It demonstrates rider trip estimates and preferences, recent-trip reuse in browser storage, and a demo driver dashboard. It is **not a production ride-booking service**: it does not contact drivers, create real bookings, calculate live routes, process payments, or persist real driver accounts.
+LoopRideApp is a responsive ride-coordination UI demo backed by a small Java HTTP server. It demonstrates rider trip estimates and preferences, recent-trip reuse in browser storage, and a demo-only driver availability workflow. This repository is intentionally not a production ride-booking service: it does not create real bookings, authenticate users or drivers, match drivers, or persist account-backed trip state.
+
+## Demo status and production readiness
+
+This project is a working UI demonstration and a smoke-testable Java server. It is not production-ready and should not be described as a live ride-booking platform or a system with real booking or dispatch behavior.
+
+The current app intentionally omits the critical production components that a real transportation service requires:
+
+- Real authentication and authorization for riders and drivers.
+- Server-side validation of ride requests and driver availability.
+- Durable persistence for users, rides, and driver state.
+- A booking lifecycle with create/cancel/timeout/status transitions.
+- Driver matching, dispatch logic, and concurrency-safe updates.
+- Payments, audit logging, privacy/security review, and deployment checks.
 
 ## Implemented features
 
@@ -81,11 +94,22 @@ docker run --rm -p 8080:10000 looprideapp:local
 
 The container's application port is `10000`; visit http://localhost:8080. The CI pipeline also checks the health endpoint and verifies that an unknown API path returns 404.
 
+## Production implementation plan
+
+Before any production claim is made, the project should define and implement a backend/API contract that covers the real ride lifecycle. A minimal production plan should include:
+
+- API routes for authentication, trips, availability, matching, cancellation, and status updates.
+- A durable data model for users, drivers, rides, trip state, availability windows, and audit logs.
+- Server-side authorization rules that distinguish rider and driver roles and validate state transitions.
+- Persistence, concurrency control, and transactional updates for matching and trip booking workflow.
+- Integration tests for authentication failures, duplicate booking submissions, invalid state transitions, and persistence checks.
+- Privacy, security, observability, and deployment verification steps before any production rollout.
+
 ## Project limitations
 
-This repository currently provides a demonstrator, not a complete marketplace. It has no real authentication, account-backed data, driver matching, live maps/GPS, booking lifecycle, dispatch, payment integration, or production database. Fare values and busy-zone bonuses are examples, not live quotes. Browser local storage is local to one browser and must not be treated as secure account storage.
+This repository currently provides a demonstrator, not a complete marketplace. It has no real authentication, account-backed data, driver matching, live maps/GPS, booking lifecycle, dispatch, payment integration, or production database. The app intentionally demonstrates UI flow and server-side HTML endpoint behavior rather than a dispatching ride service.
 
-Before production use, add a defined backend/API contract, authentication and authorization, server-side validation, durable data storage, privacy and security review, observability, and integration tests for the booking lifecycle.
+Before production use, add a defined backend/API contract, authentication and authorization, server-side validation, durable data storage, privacy and security review, observability, and integration testing. No claim of production readiness should be made until those checks pass.
 
 ## Contributing
 
